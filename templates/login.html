@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Login
+{% endblock %}
+
+{% block body %}
+
+<p>Please login to Solvair</p>
+
+{% if errors %}
+	{% for e in errors %}
+		<p style='color:red;'>{{e}}</p>
+	{% endfor %}
+{% endif %}
+
+<form method='GET'>
+	<label for='username'>Enter your username please :</label>
+	<input type='text' required placeholder='Your username' name='username' id='username'><br/>
+	<label for='password'>Enter your password please :</label>
+	<input type='password' required placeholder='Your password' name='password' id='password'><br/>
+	{% if secret %}
+	<label for='verif'>Secret input</label>
+	<input type='text' id='verif' required placeholder='laissemoientrer' name='verif'>{% endif %}
+	<input type='submit' value='Log in!'>
+</form>
+
+<p><a href='{% url 'signup' %}'>You do not have an account? Create one now</a></p>
+
+{% endblock %}

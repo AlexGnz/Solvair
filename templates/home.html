@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+
+{% block title %}
+
+	Home
+	{% if user.type == 'E' %}
+	 	- Employee version
+ 	{% else %}
+ 		 - Welcome {{user.username}}
+ 	{% endif %}
+
+{% endblock %}
+
+{% block body %}
+
+	<a style='float:right;' href="{% url 'logout' %}">Logout</a>
+
+	{% if errors %}
+		{% for e in errors %}
+			<p style='color:red;'>{{e}}</p>
+		{% endfor %}
+	{% endif %}
+
+
+	{% if user.type == 'E' %}
+		<h1>Employee version</h1>
+
+
+		<div style='float:left;width:400px;'>
+			<h2>Add an aircraft</h2>
+			<form method='GET'>
+
+				<input type='hidden' name='form_add_aircraft' value='sent'>
+				<label for='name'>Name of the aircraft</label>
+				<input id='name' type='text' placeholder='Name of the aircraft' name='name' required><br/>
+				<label for='capacite'>Number of seats</label>
+				<input id='capacite' type='number' min='0' placeholder='Number of seats' name='capacite' required><br/>
+				<label id='company'>Airline Company</label>
+				<input id='company' type='text' placeholder='Airline Company' name='company' required><br/>
+				<input type='submit' value='Add the aircraft'>
+
+			</form>
+			<ul>
+				{% for a in aircrafts %}
+					<li>{{a.nom}} : {{a.capacite}} places appartenant à {{a.compagnie}}</li>
+				{% endfor %}
+			</ul>
+		</div>
+
+		<div style='float:left;width:400px;'>
+			<h2>Add a flight</h2>
+			<form method='GET'>
+				<input type='hidden' name='form_add_flight' value='sent'>
+				<label for='city_init'>Departure city</label>
+				<input id='city_init' type='text' placeholder='Departure city' name='city_init' required><br/>
+				<label for='city_final'>Arrival city</label>
+				<input id='city_final' type='text' placeholder='Arrival city' name='city_final' required><br/>
+				<label for='aircraft'>Choose the aircraft</label>
+				<select id='aircraft' name='aircraft_id'>
+				{% for a in aircrafts %}
+					<option value='{{a.id}}'>{{a.nom}} : {{a.capacite}} places appartenant à {{a.compagnie}}</option>
+				{% endfor %}
+				</select><br/>
+
+				<label for='reference'>Reference</label>
+				<input id='reference' type='text' placeholder='Flight reference' name='reference' required><br/>
+				<label id='date_init'>Departure Date</label>
+				<input id='date_init' type='text' placeholder='2018-04-08 14:32' name='date_init' required><br/>
+				<label id='date_final'>Arrival Date</label>
+				<input id='date_final' type='text' placeholder='2018-04-08 18:32' name='date_final' required><br/>
+				<label id='price'>Price of the ticket</label>
+				<input id='price' type='number' min='0' placeholder='Price of the ticket' name='price' required><br/>
+				<input type='submit' value='Add the flight'>
+
+			</form>
+
+
+			<ul>
+				{% for v in vols %}
+					<li>{{v.avion.nom}} : {{v.avion.capacite}} places [ {{v.prix}} euros ] which goes from <abbr title='{{v.trajet.ville_init.nom|capfirst}}'><b>{{v.trajet.ville_init.prefixe|upper}}</b></abbr>
+					 to <abbr title='{{v.trajet.ville_finale.nom|capfirst}}'><b>{{v.trajet.ville_finale.prefixe|upper}}</b></abbr> on the <u>{{v.datetime_depart}}</u></li>
+					<form action="{% url 'delete' %}" method='GET'>
+						<input type='hidden' name='delete_flight' value='sent'>
+						<input type='hidden' name='vol_id' value='{{v.id}}'>
+						<input style='color:red;' type='submit' value='Delete flight'>
+					</form>
+				{% endfor %}
+			</ul>
+
+
+		</div>
+		<div style='float:right;width:400px;'>
+
+			<h2>Flight status</h2>
+			{% if vol_et_nb %}
+
+				<ul>
+					{% for v,n in vol_et_nb %}
+						<li>
+							<abbr title='{{v.trajet.ville_init.nom|capfirst}}'>
+							<b>{{v.trajet.ville_init.prefixe|upper}}</b>
+							</abbr>
+							 ->
+							 <abbr title='{{v.trajet.ville_finale.nom|capfirst}}'>
+							 <b>{{v.trajet.ville_finale.prefixe|upper}}</b>
+							 </abbr> [Dep :
+							 <u>{{v.datetime_depart}}</u>
+							 ] : {{n}} places left
+						 </li>
+					{% endfor %}
+				</ul>
+
+			{% endif %}
+
+			<h3>Turnover : {{turnover}} euros</h3>
+		</div>
+
+	{% endif %}
+	{% if user.type == 'C' %}
+		<h1>Client version</h1>
+
+		<div style='float:left;width:600px;'>
+			<h2>Look for a flight</h2>
+			<form method='GET'>
+					<input type='hidden' name='search_for_a_flight' value='sent'>
+				<label for='ville_i'>Select your departure city</label>
+					<select id='ville_i' name='id_ville_depart'>
+						{% for v in villes %}
+							<option value='{{v.id}}'>{{v.nom|capfirst}}</option>
+						{% endfor %}
+					</select><br/>
+				<label for='ville_f'>Select your destination city</label>
+					<select id='ville_f' name='id_ville_arrivee'>
+						{% for v in villes %}
+							<option value='{{v.id}}'>{{v.nom|capfirst}}</option>
+						{% endfor %}
+					</select><br/>
+				<label for='date'>Select your departure date</label>
+					<input id='date' type='text' name='date' required placeholder='2018-04-08 18:32'><br/>
+				<label for='timedelta'>Choose the range</label>
+					<select name='timedelta' id='timedelta'>
+						<option value='1'>1 day</option>
+						<option value='2'>2 days</option>
+						<option value='3'>3 days</option>
+						<option value='4'>4 days</option>
+						<option value='5'>5 days</option>
+						<option value='6'>6 days</option>
+						<option value='7'>7 days</option>
+					</select>
+				<br/>
+				<label for='escale'>With stops</label>
+				<input id='escale' type='checkbox' name='escale'><br/>
+				<input type='submit' value='Search for my flight'>
+			</form>
+
+			<br/>
+			<form method='GET'>
+				<h3>Let us choose a random flight for you</h3>
+				<input type='hidden' value='sent' name='random_flight_form'>
+				<label for='ville_i'>Departure City</label>
+				<select id='ville_i' name='id_ville_depart'>
+				{% for v in villes %}
+					<option value='{{v.id}}'>{{v.nom|capfirst}}</option>
+				{% endfor %}
+				</select><br/>
+				<input type='submit' value='Suprise me with a random flight!'>
+			</form>
+
+			{% if vols_searched %}
+				<h2>Direct flights</h2>
+				<ul>
+					{% for v in vols_searched %}
+						<li>{{v.datetime_depart}} :  {{v.prix}} euros ! Flight goes from {{v.trajet.ville_init.nom|capfirst}} to {{v.trajet.ville_finale.nom|capfirst}}</li>
+						<form method='GET' action="{% url 'reservation' %}">
+							<input type='hidden' name='vol_id' value='{{v.id}}'>
+							<input type='submit' value='Book this flight'>
+						</form>
+					{% endfor %}
+				</ul>
+
+			{% else %}
+				<h2>No direct flight found...</h2>
+			{% endif %}
+
+			{% if stops %}
+				<h2>With stops</h2>
+				<ul>
+
+					{% for e in escales %}
+						<li>
+							{{e.0.nom|capfirst}} -> {{e.1.nom|capfirst}} -> {{e.2.nom|capfirst}}
+							<form action="{% url 'reservation' %}" method='GET'>
+								<input type='hidden' name='id_ville_init' value='{{e.0.id}}'>
+								<input type='hidden' name='id_ville_escale' value='{{e.1.id}}'>
+								<input type='hidden' name='id_ville_finale' value='{{e.2.id}}'>
+								<input type='submit' value='Book this flight with these stops'>
+							</form>
+						</li>
+					{% empty %}
+						<li>Nothing found...</li>
+					{% endfor %}
+				</ul>
+
+			{% else %}
+				<h2>Activate the option to find flight with stops...</h2>
+			{% endif %}
+
+		</div>
+
+		<div style='float:left;width:600px;'>
+			<h2>My reservations</h2>
+
+			{% if reservations %}
+				<ul>
+					{% for r in reservations %}
+						<li>
+							{% if r.first_class %}
+								<span style='background-color:gold;'>[First Class]</span>
+							{% endif %}
+							{{r.vol.datetime_depart}}:
+							{% widthratio r.prix 1 r.nombre_places %} euros for {{r.nombre_places}} tickets !
+							Flight goes from {{r.vol.trajet.ville_init.nom|capfirst}} to {{r.vol.trajet.ville_finale.nom|capfirst}}
+						</li>
+						<form method='GET' action="{% url 'delete' %}">
+							<input type='hidden' name='delete_reservation' value='sent'>
+							<input type='hidden' name='resa_id' value='{{r.id}}'>
+							<input type='submit' value='Delete'>
+						</form>
+					{% endfor %}
+				</ul>
+			{% endif %}
+
+		</div>
+
+	{% endif %}
+
+{% endblock %}

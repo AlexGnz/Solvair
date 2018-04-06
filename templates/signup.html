@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Sign up to Solvair
+{% endblock %}
+
+{% block body %}
+
+<p>Create a new account to book a Solvair flight</p>
+
+{% if errors %}
+	{% for e in errors %}
+		<p style='color:red;'>{{e}}</p>
+	{% endfor %}
+{% endif %}
+
+<form method='GET'>
+	<label for='username'>Choose a new username please :</label>
+	<input type='text' required placeholder='Your username' name='username' id='username'><br/>
+	<label for='password'>Create a secured password :</label>
+	<input type='password' required placeholder='Your password' name='password' id='password'><br/>
+	<label for='password_confirm'>Repeat it here please :</label>
+	<input type='password' required placeholder='Your password again' name='password_confirm' id='password_confirm'><br/>
+	<label for='type'>You are ...?</label>
+	<select id='type' name='type'>
+		<option selected value='C'>Client</option>
+		<option value='E'>Employee</option>
+	</select><br/>
+	<input type='submit' value='Create your account'>
+</form>
+<button><a href="{% url 'login' %}">Already have an account? Log into it right now</a></button>
+
+{% endblock %}

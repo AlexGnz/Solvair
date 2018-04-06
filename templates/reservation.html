@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Book your flight
+{% endblock %}
+
+{% block body %}
+<a style='float:right;' href="{% url 'logout' %}">Logout</a><br/>
+{% if errors %}
+	{% for e in errors %}
+		<p style='color:red;'>{{e}}</p>
+	{% endfor %}
+{% endif %}
+{% if not reserved %}
+<div style='float:left;'>
+{% if stops %}
+Book a flight from {{villes.0.nom|capfirst}} to {{villes.1.nom|capfirst}}, to {{villes.2.nom|capfirst}}
+{% else %}
+<p>Book a flight from {{vol.trajet.ville_init.nom|capfirst}} to {{vol.trajet.ville_finale.nom|capfirst}}</p>
+{% endif %}
+
+{% if stops %}<br/>
+<form method='GET'>
+<input type='hidden' name='book_with_stops' value='sent'>
+<input type='hidden' name='id_ville_init' value='{{villes.0.id}}'>
+<input type='hidden' name='id_ville_escale' value='{{villes.1.id}}'>
+<input type='hidden' name='id_ville_finale' value='{{villes.2.id}}'>
+<label for='nombre'>Number of seats</label>
+<input type='number' required placeholder='Number of seats' name='nombre' id='nombre'><br/>
+<label for='visa'>Enter your payment details</label>
+<input type='text' required placeholder='Visa card' name='visa' id='visa'><br/>
+<label>First class service (price doubled) </label>
+<input type='checkbox' name='first_class_service'><br/>
+<input type='submit' value='Book your flight'>
+</form>
+{% else %}
+<form method='GET'>
+	<input type='hidden' value='sent' name='book_form'>
+	<input type='hidden' value='{{vol.id}}' name='vol_id'>
+	<label for='nombre'>Number of seats</label>
+	<input type='number' required placeholder='Number of seats' name='nombre' id='nombre'><br/>
+	<label for='visa'>Enter your payment details</label>
+	<input type='text' required placeholder='Visa card' name='visa' id='visa'><br/>
+	<label>First class service (price doubled) </label>
+	<input type='checkbox' name='first_class_service'><br/>
+	<input type='submit' value='Book your flight'>
+</form>
+{% endif %}
+</div>
+{% endif %}
+{% if reserved %}
+<div style='float:right;'>
+<h2>Choose your places</h2>
+{% if no_stops %}
+<form>
+	<input type='hidden' name='book_places' value='sent'>
+	<input type='hidden' name='nb_resa' value='1'>
+	<input type='hidden' value='{{nb|length}}' name='nb'>
+
+	<input type='hidden' value='{{reservation.id}}' name='reservation_1'>
+	<h2>Flight 1</h2>
+		{% for i in nb %}
+		<label for='place'>Choose your place</label>
+		<select id='place' name='place_{{forloop.counter}}'>
+			{% for p in places_un %}
+			<option value='{{p}}'>{{p}}</option>
+			{% endfor %}
+		</select><br/>
+		{% endfor %}<br/>
+		<input type='submit' value='Book your places'>
+</form>
+{% else %}
+<form>
+	<input type='hidden' name='book_places' value='sent'>
+	<input type='hidden' name='nb_resa' value='2'>
+	<input type='hidden' value='{{nb|length}}' name='nb'>
+
+	<input type='hidden' value='{{reservation_un.id}}' name='reservation_1'>
+	<h2>Flight 1</h2>
+		{% for i in nb %}
+		<label for='place'>Choose your place</label>
+		<select id='place' name='place_{{forloop.counter}}'>
+			{% for p in places_un %}
+			<option value='{{p}}'>{{p}}</option>
+			{% endfor %}
+		</select><br/>
+		{% endfor %}<br/>
+		<input type='hidden' value='{{reservation_deux.id}}' name='reservation_2'>
+	<h2>Flight 2</h2>
+		{% for i in nb %}
+		<label for='place'>Choose your place</label>
+		<select id='place' name='place_{{forloop.counter}}'>
+			{% for p in places_deux %}
+			<option value='{{p}}'>{{p}}</option>
+			{% endfor %}
+		</select><br/>
+		{% endfor %}<br/>
+		<input type='submit' value='Book your places'>
+</form>
+{% endif %}
+
+<img src='https://alexandregonze.be/compteur/avion/plan_avion.jpg' style='float:right;' width='50%' height='50%' ></div>
+{% endif %}
+<br/><br/>
+<a style='float:left;' href="{% url 'home' %}">Back to home</a>
+{% endblock %}
