@@ -18,13 +18,13 @@ from django.urls import path
 from solvay2018.views import *
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path(r'',index,name='index'),
-    path(r'logout',logout,name='logout'),
-    path(r'login',login,name='login'),
-    path(r'home',home,name='home'),
-    path(r'sign-up',signup,name='signup'),
-    path(r'delete',delete,name='delete'),
-    path(r'reservation',reservation,name='reservation'),
-    path(r'demo',demo,name='demo')
+    url('^admin/', admin.site.urls),
+    url(r'^$',index,name='index'),
+    url(r'^logout',logout,name='logout'),
+    url(r'^login',login,name='login'),
+    url(r'^home',home,name='home'),
+    url(r'^sign-up',signup,name='signup'),
+    url(r'^delete',delete,name='delete'),
+    url(r'^reservation',reservation,name='reservation'),
+    url(r'^demo',demo,name='demo')
 ]
